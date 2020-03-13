@@ -9,6 +9,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -26,9 +27,19 @@ public class Main
 
     private static BufferedReader getFileAsReader(String filename)
     {
-	InputStream stream = Main.class.getResourceAsStream(filename);
+	try
+	{
+	    InputStream stream = Main.class.getResourceAsStream(filename);
 
-	return new BufferedReader(new InputStreamReader(stream));
+	    return new BufferedReader(new InputStreamReader(stream, "UTF-8"));
+	}
+	catch (UnsupportedEncodingException e)
+	{
+	    // TODO Auto-generated catch block
+	    e.printStackTrace();
+	}
+
+	return null;
     }
 
     private static ArrayList<Word> getWordListFromDatabase(BufferedReader reader, boolean getSimplified)
@@ -114,14 +125,15 @@ public class Main
 	    {
 		if (Character.isIdeographic(character))
 		{
+
 		    if (!characters.contains(character))
 		    {
+
 			containsUnknownCharacter = true;
 		    }
 
 		    containsChineseCharacter = true;
 		}
-
 	    }
 
 	    if (containsChineseCharacter && !containsUnknownCharacter)
@@ -135,6 +147,8 @@ public class Main
 
     public static void main(String[] args)
     {
+	System.out.println('我');
+
 	BufferedReader database = getFileAsReader("cedict_ts.u8");
 	ArrayList<Word> dictionary = getWordListFromDatabase(database, true);
 
@@ -142,21 +156,25 @@ public class Main
 	frame.setBounds(100, 100, 450, 300);
 	frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	GridBagLayout gridBagLayout = new GridBagLayout();
-	gridBagLayout.columnWidths = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0};
-	gridBagLayout.rowHeights = new int[]{0, 0, 0, 0};
-	gridBagLayout.columnWeights = new double[]{1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE};
-	gridBagLayout.rowWeights = new double[]{0.0, 0.0, 1.0, Double.MIN_VALUE};
+	gridBagLayout.columnWidths = new int[]
+	{ 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	gridBagLayout.rowHeights = new int[]
+	{ 0, 0, 0, 0 };
+	gridBagLayout.columnWeights = new double[]
+	{ 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, Double.MIN_VALUE };
+	gridBagLayout.rowWeights = new double[]
+	{ 0.0, 0.0, 1.0, Double.MIN_VALUE };
 	frame.getContentPane().setLayout(gridBagLayout);
-	
+
 	JToggleButton tglbtnNewToggleButton = new JToggleButton("Simplified");
 	GridBagConstraints gbc_tglbtnNewToggleButton = new GridBagConstraints();
 	gbc_tglbtnNewToggleButton.insets = new Insets(0, 0, 5, 5);
 	gbc_tglbtnNewToggleButton.gridx = 0;
 	gbc_tglbtnNewToggleButton.gridy = 0;
 	frame.getContentPane().add(tglbtnNewToggleButton, gbc_tglbtnNewToggleButton);
-	
+
 	JButton btnNewButton = new JButton("Generate");
-	
+
 	GridBagConstraints gbc_btnNewButton = new GridBagConstraints();
 	gbc_btnNewButton.insets = new Insets(0, 0, 5, 5);
 	gbc_btnNewButton.gridx = 1;
@@ -172,10 +190,10 @@ public class Main
 	gbc_scrollPane_1.gridx = 0;
 	gbc_scrollPane_1.gridy = 1;
 	frame.getContentPane().add(scrollPane_1, gbc_scrollPane_1);
-	
+
 	JTextArea textArea = new JTextArea();
 	scrollPane_1.setViewportView(textArea);
-	
+
 	JScrollPane scrollPane = new JScrollPane();
 	GridBagConstraints gbc_scrollPane = new GridBagConstraints();
 	gbc_scrollPane.gridheight = 3;
@@ -184,11 +202,11 @@ public class Main
 	gbc_scrollPane.gridx = 2;
 	gbc_scrollPane.gridy = 0;
 	frame.getContentPane().add(scrollPane, gbc_scrollPane);
-	
+
 	JTextArea textArea_1 = new JTextArea();
 	textArea_1.setEditable(false);
 	scrollPane.setViewportView(textArea_1);
-	
+
 	btnNewButton.addActionListener(new ActionListener()
 	{
 
@@ -196,6 +214,7 @@ public class Main
 	    public void actionPerformed(ActionEvent e)
 	    {
 		ArrayList<Character> characters = getCharacterListFromString(textArea.getText());
+
 		ArrayList<Word> words = findWordsFromCharacters(characters, dictionary);
 
 		StringBuilder text = new StringBuilder();
@@ -209,14 +228,14 @@ public class Main
 		    text.append(word.definition);
 		    text.append("\n");
 		}
-		
+
 		System.out.println(text.toString().split("\n").length);
 
 		textArea_1.setText(text.toString());
 
 	    }
 	});
-	
+
 	frame.setVisible(true);
     }
 }
